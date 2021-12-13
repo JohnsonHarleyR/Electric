@@ -7,6 +7,7 @@
         public int[,] Stage { get; set; }
 
         public int ForwardSteps { get; set; }
+        public int DiagonalSteps { get; set; }
         public int SideSteps { get; set; }
         public int BackwardSteps { get; set; }
 
@@ -21,6 +22,7 @@
             Stage = new int[squaresAcross, squaresAcross];
             DifficultyIndex = 0;
             ForwardSteps = 0;
+            DiagonalSteps = 0;
             SideSteps = 0;
             BackwardSteps = 0;
 

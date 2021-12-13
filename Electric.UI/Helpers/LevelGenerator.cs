@@ -28,12 +28,22 @@ namespace Electric.UI.Helpers
             // first generate all levels and store the highest step count
             for (int i = 0; i < levelCount; i++)
             {
-                LevelStageModel newLevel = GenerateLevelByStepPreference(maxSteps);
+                LevelStageModel newLevel;
+                bool isExisting = true;
+
+                // don't generate a level with the same difficulty
+                do
+                {
+                    newLevel = GenerateLevelByStepPreference(maxSteps);
+                    isExisting = IsRepeatDifficulty(newLevel, allLevels);
+
+                } while (isExisting);
 
                 if (newLevel.TotalSteps > highestStepCount)
                 {
                     highestStepCount = newLevel.TotalSteps;
                 }
+
                 allLevels.Add(newLevel);
             }
 
@@ -130,10 +140,17 @@ namespace Electric.UI.Helpers
             generatedBackwardCount = 0;
         }
 
-        //private bool IsRepeatDifficulty(LevelStageModel newLevel, List<LevelStageModel> generatedLevels)
-        //{
-
-        //}
+        private bool IsRepeatDifficulty(LevelStageModel newLevel, List<LevelStageModel> generatedLevels)
+        {
+            foreach (var existingLevel in generatedLevels)
+            {
+                if (newLevel.TotalSteps == existingLevel.TotalSteps && newLevel.DifficultyIndex == existingLevel.DifficultyIndex)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private List<LevelStageModel> AssembleSingleListWithLevelNumbers(List<LevelStageModel>[] levelListArray)
         {

@@ -14,7 +14,7 @@ namespace Electric.UI.Controllers
             LevelStageModel testLevel = generator.CreateRandomLevel();
 
             // test list of levels
-            List<LevelStageModel> testLevelList = generator.GenerateLevels(50);
+            List<LevelStageModel> testLevelList = generator.GenerateLevels(40);
 
             return View(testLevel);
         }
