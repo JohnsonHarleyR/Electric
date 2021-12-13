@@ -11,6 +11,7 @@ namespace Electric.UI.Helpers
         private int[,] generatedStage = null;
         private int generatedStepCount = 0;
         private int generatedForwardCount = 0;
+        private int generatedDiagonalCount = 0;
         private int generatedSidewaysCount = 0;
         private int generatedBackwardCount = 0;
 
@@ -43,7 +44,7 @@ namespace Electric.UI.Helpers
             levelsByStepCountArray = SortListsByDifficultyIndex(levelsByStepCountArray);
 
             // now put it all back together
-            allLevels = AssembleSingListWithLevelNumbers(levelsByStepCountArray);
+            allLevels = AssembleSingleListWithLevelNumbers(levelsByStepCountArray);
 
             // set highest step count back to 0
             highestStepCount = 0;
@@ -92,7 +93,7 @@ namespace Electric.UI.Helpers
             {
                 ResetGeneratedInformation();
                 generatedForwardCount++;
-                success = GenerateStage(firstStep, Direction.Forward, CreateStageCopy(initialStage), initialStage, 2);
+                success = GenerateStage(firstStep, false, Direction.Forward, CreateStageCopy(initialStage), initialStage, 2);
             } while (success == false);
 
             // once successful, set stage to generated stage as well as the counts
@@ -101,6 +102,7 @@ namespace Electric.UI.Helpers
                 level.Stage = generatedStage;
                 level.TotalSteps = generatedStepCount;
                 level.ForwardSteps = generatedForwardCount;
+                level.DiagonalSteps = generatedDiagonalCount;
                 level.SideSteps = generatedSidewaysCount;
                 level.BackwardSteps = generatedBackwardCount;
             }
@@ -123,11 +125,17 @@ namespace Electric.UI.Helpers
             generatedStage = null;
             generatedStepCount = 0;
             generatedForwardCount = 0;
+            generatedDiagonalCount = 0;
             generatedSidewaysCount = 0;
             generatedBackwardCount = 0;
         }
 
-        private List<LevelStageModel> AssembleSingListWithLevelNumbers(List<LevelStageModel>[] levelListArray)
+        //private bool IsRepeatDifficulty(LevelStageModel newLevel, List<LevelStageModel> generatedLevels)
+        //{
+
+        //}
+
+        private List<LevelStageModel> AssembleSingleListWithLevelNumbers(List<LevelStageModel>[] levelListArray)
         {
             int levelCount = 1;
             List<LevelStageModel> assembledList = new List<LevelStageModel>();
@@ -181,7 +189,8 @@ namespace Electric.UI.Helpers
 
         private decimal CalculateDifficultyIndex(LevelStageModel level)
         {
-            return (decimal)level.ForwardSteps / (decimal)((level.SideSteps * 2) + (level.BackwardSteps * 5) + 1);
+            return (decimal)(level.DiagonalSteps) + (decimal)(level.SideSteps * 2) + (decimal)(level.BackwardSteps * 5);
+            //return (decimal)level.ForwardSteps / (decimal)((level.SideSteps * 2) + (level.BackwardSteps * 5) + 1);
         }
 
         private string GenerateStageDisplayString(int[,] stage)
@@ -194,7 +203,7 @@ namespace Electric.UI.Helpers
                 for (int x = 0; x < 5; x++)
                 {
                     string initialString = "";
-                    if (stage[y, x] > 9)
+                    if (stage[y, x] < 10)
                     {
                         initialString = "0";
                     }
@@ -207,7 +216,7 @@ namespace Electric.UI.Helpers
         }
 
         // returns a bool and modifies the stage if that bool is true
-        private bool GenerateStage(int[] previousStep, Direction previousDirection, int[,] stage, int[,] previousStage, int count)
+        private bool GenerateStage(int[] previousStep, bool wasDiagonal, Direction previousDirection, int[,] stage, int[,] previousStage, int count)
         {
             // if the previous step is the last row on the stage, return true
             if (previousStep[0] == GlobalVariables.SQUARES_ACROSS - 1)
@@ -228,6 +237,7 @@ namespace Electric.UI.Helpers
             if (nextDirection == Direction.None)
             {
                 AdjustGeneratedCount(previousDirection, -1);
+                AdjustDiagnonalCount(wasDiagonal, 1);
                 stage = previousStage;
                 return false;
             }
@@ -238,11 +248,51 @@ namespace Electric.UI.Helpers
 
                 newStage[(int)nextStep[0], (int)nextStep[1]] = count;
 
-                // adjust generated count
+                // adjust generated counts
                 AdjustGeneratedCount(nextDirection, 1);
 
-                return GenerateStage(nextStep, nextDirection, newStage, stage, count + 1);
+                // adjust diagnonal count
+                bool isDiagonal = IsDiagonalMove(nextStep, previousStep);
+                AdjustDiagnonalCount(isDiagonal, 1);
+
+                return GenerateStage(nextStep, isDiagonal, nextDirection, newStage, stage, count + 1);
             }
+        }
+
+        private void AdjustDiagnonalCount(bool isDiagonal, int amount)
+        {
+
+            if (isDiagonal)
+            {
+                generatedDiagonalCount += amount;
+            }
+
+        }
+
+        private bool IsDiagonalMove(int[] nextStep, int[] previousStep)
+        {
+            bool isDiagonal = false;
+
+            int[] yPossibles = new int[] { 1, -1 };
+            int[] xPossibles = new int[] { 1, -1 };
+            for (int y = 0; y < yPossibles.Length; y++)
+            {
+                for (int x = 0; x < xPossibles.Length; x++)
+                {
+                    if (nextStep[0] == previousStep[0] + yPossibles[y] &&
+                        nextStep[1] == previousStep[1] + xPossibles[x])
+                    {
+                        isDiagonal = true;
+                        break;
+                    }
+                }
+                if (isDiagonal)
+                {
+                    break;
+                }
+            }
+
+            return isDiagonal;
         }
 
         private void AdjustGeneratedCount(Direction direction, int amount)
