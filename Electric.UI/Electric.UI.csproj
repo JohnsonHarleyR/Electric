@@ -141,9 +141,16 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
-    <Content Include="Scripts\game-canvas.js" />
-    <Content Include="Scripts\game-variables.js" />
+    <Content Include="Scripts\game\canvas.js" />
+    <Content Include="Scripts\game\levels.js" />
+    <Content Include="Scripts\game\logic.js" />
+    <Content Include="Scripts\game\variables.js" />
+    <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
     <Content Include="Scripts\jquery-3.4.1.slim.js" />

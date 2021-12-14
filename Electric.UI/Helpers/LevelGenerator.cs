@@ -9,6 +9,7 @@ namespace Electric.UI.Helpers
     public class LevelGenerator
     {
         private int[,] generatedStage = null;
+
         private int generatedStepCount = 0;
         private int generatedForwardCount = 0;
         private int generatedDiagonalCount = 0;
